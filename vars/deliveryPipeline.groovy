@@ -3,18 +3,11 @@
 
 def call(Map param){
 	pipeline {
-		agent {
-			label "dockerworker"
-		}
+		agent any
 		stages {
-			stage ("telegram notif"){
-				steps{
-					echo "${getMessage()} ${param.text}"
-				}
-			}
 			stage('Build') {
 				steps {
-					sh 'mvn -B -DskipTests clean package'
+					sh'mvn -B -DskipTests clean package'
 				}
 			}
 			stage('Test') {
@@ -27,13 +20,18 @@ def call(Map param){
 					}
 				}
 			}
+			stage('Delivery') {
+				steps {
+					sh "sshpass -p 'vagrant' scp -o 'StrictHostKeyChecking no' target/my-app-1.0-SNAPSHOT.jar vagrant@192.168.56.104:/home/vagrant/"
+					sh "sshpass -p 'vagrant' ssh -o 'StrictHostKeyChecking no' vagrant@192.168.56.104 -t 'java -jar /home/vagrant/my-app-1.0-SNAPSHOT.jar'"
+				}
+			}
+			
+			// stage('Run app') {
+			//     steps {
+			//         sh 'java -jar target/my-app-1.0-SNAPSHOT.jar'
+			//     }
+			// }
 		}
-
-    }
-}
-
-def getMessage (){
-	def commiter = sh(script: "git show -s --pretty=%cn",returnStdout: true).trim()
-	def message = "$commiter deploying app"
-	return message
+	}
 }
