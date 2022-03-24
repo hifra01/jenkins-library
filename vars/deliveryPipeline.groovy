@@ -2,7 +2,7 @@
 
 
 def call(Map param){
-	def appName = param.get(appName) as String
+	def appName = param.get('appName') as String
 
 	pipeline {
 		agent any
