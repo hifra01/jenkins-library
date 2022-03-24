@@ -2,6 +2,8 @@
 
 
 def call(Map param){
+	def appName = param.get(appName) as String
+
 	pipeline {
 		agent any
 		stages {
@@ -22,8 +24,8 @@ def call(Map param){
 			}
 			stage('Delivery') {
 				steps {
-					sh "sshpass -p 'vagrant' scp -o 'StrictHostKeyChecking no' target/my-app-1.0-SNAPSHOT.jar vagrant@192.168.56.104:/home/vagrant/"
-					sh "sshpass -p 'vagrant' ssh -o 'StrictHostKeyChecking no' vagrant@192.168.56.104 -t 'java -jar /home/vagrant/my-app-1.0-SNAPSHOT.jar'"
+					sh "sshpass -p 'vagrant' scp -o 'StrictHostKeyChecking no' target/${appName}-1.0-SNAPSHOT.jar vagrant@192.168.56.104:/home/vagrant/"
+					sh "sshpass -p 'vagrant' ssh -o 'StrictHostKeyChecking no' vagrant@192.168.56.104 -t 'java -jar /home/vagrant/${appName}-1.0-SNAPSHOT.jar'"
 				}
 			}
 			
